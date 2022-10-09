@@ -238,7 +238,7 @@ namespace juce
         KeyPress getKeyPress(int keyCode, String name)
         {
             if (keyCode >= 32 && keyCode <= 64)
-                return {keyCode, ModifierKeys::currentModifiers, static_cast<juce::juce_wchar>(keyCode)};
+                return {keyCode, ModifierKeys::currentModifiers, static_cast<juce_wchar>(keyCode)};
 
             if (keyCode >= 91 && keyCode <= 122)
                 return {keyCode, ModifierKeys::currentModifiers, name[0]};
@@ -616,6 +616,8 @@ namespace juce
 
             onWrapperCreation(pluginInstance);
 
+            unityWrappers.add(pluginInstance);
+
             return 0;
         };
 
@@ -625,7 +627,14 @@ namespace juce
             pluginInstance->release();
 
             onWrapperDeletion(pluginInstance);
-            delete pluginInstance;
+            if (unityWrappers.contains(pluginInstance))
+            {
+                unityWrappers.removeObject(pluginInstance);
+            }
+            else
+            {
+                delete pluginInstance;
+            }
 
             if (getWrapperMap().size() == 0)
                 shutdownJuce_GUI();

@@ -8,7 +8,7 @@ namespace juce
     class Juce4UnityAudioProcessor : public AudioProcessor
     {
     public:
-        Juce4UnityAudioProcessor(const BusesProperties& ioLayouts);
+        Juce4UnityAudioProcessor(const BusesProperties& ioLayouts) : AudioProcessor(ioLayouts){}
         
         virtual void loadInstrument(const File& sfzFile) = 0;
         virtual void unloadInstrument(const String& path) = 0;
