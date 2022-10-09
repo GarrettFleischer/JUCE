@@ -194,12 +194,14 @@ extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityKeyEvent (int id
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unitySetScreenBounds (int id, float x, float y, float w, float h);
 
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API loadInstrument(const char* path, int len);
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unloadInstrument(const char* path, int len);
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API clearInstruments();
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerReset();
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API setInstrument(const char* path, int len);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerLoadInstrument(const char* path, int len);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerUnloadInstrument(const char* path, int len);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerClearInstruments();
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API noteOn(int channel, int midi, float velocity);
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API noteOff(int channel, int midi);
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API allNotesOff(int channel);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerSetInstrument(const char* path, int len);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerNoteOn(int channel, int midi, float velocity);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerNoteOff(int channel, int midi);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerAllNotesOff(int channel);

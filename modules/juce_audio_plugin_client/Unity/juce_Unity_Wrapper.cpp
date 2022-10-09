@@ -854,8 +854,19 @@ UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unitySetScreenBounds(int id, flo
     });
 }
 
+void samplerReset()
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->reset();
+        }
+    }
+}
 
-void loadInstrument(const char* path, const int len)
+
+void samplerLoadInstrument(const char* path, const int len)
 {
     for (const auto wrapper : juce::unityWrappers)
     {
@@ -866,7 +877,7 @@ void loadInstrument(const char* path, const int len)
     }
 }
 
-void unloadInstrument(const char* path, int len)
+void samplerUnloadInstrument(const char* path, int len)
 {
     for (const auto wrapper : juce::unityWrappers)
     {
@@ -877,7 +888,7 @@ void unloadInstrument(const char* path, int len)
     }
 }
 
-void clearInstruments()
+void samplerClearInstruments()
 {
     for (const auto wrapper : juce::unityWrappers)
     {
@@ -888,7 +899,7 @@ void clearInstruments()
     }
 }
 
-void setInstrument(const char* path, int len)
+void samplerSetInstrument(const char* path, int len)
 {
     for (const auto wrapper : juce::unityWrappers)
     {
@@ -899,7 +910,7 @@ void setInstrument(const char* path, int len)
     }
 }
 
-void noteOn(int channel, int midi, float velocity)
+void samplerNoteOn(int channel, int midi, float velocity)
 {
     for (const auto wrapper : juce::unityWrappers)
     {
@@ -910,7 +921,7 @@ void noteOn(int channel, int midi, float velocity)
     }
 }
 
-void noteOff(int channel, int midi)
+void samplerNoteOff(int channel, int midi)
 {
     for (const auto wrapper : juce::unityWrappers)
     {
@@ -921,7 +932,7 @@ void noteOff(int channel, int midi)
     }
 }
 
-void allNotesOff(int channel)
+void samplerAllNotesOff(int channel)
 {
     for (const auto wrapper : juce::unityWrappers)
     {
