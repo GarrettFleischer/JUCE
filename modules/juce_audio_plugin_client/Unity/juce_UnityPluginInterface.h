@@ -192,3 +192,14 @@ extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseUp   (int i
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityKeyEvent (int id, int code, UnityEventModifiers mods, const char* name);
 
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unitySetScreenBounds (int id, float x, float y, float w, float h);
+
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API loadInstrument(const char* path, int len);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unloadInstrument(const char* path, int len);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API clearInstruments();
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API setInstrument(const char* path, int len);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API noteOn(int channel, int midi, float velocity);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API noteOff(int channel, int midi);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API allNotesOff(int channel);
