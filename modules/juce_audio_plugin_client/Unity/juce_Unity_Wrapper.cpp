@@ -36,6 +36,8 @@
 
 #include "juce_UnityPluginInterface.h"
 
+#include "Juce4UnityAudioProcessor.h"
+
 //==============================================================================
 namespace juce
 {
