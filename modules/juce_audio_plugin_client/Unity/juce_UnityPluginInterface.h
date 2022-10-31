@@ -30,32 +30,37 @@
 #define UNITY_AUDIO_PLUGIN_API_VERSION 0x010401
 
 #if JUCE_MSVC
- #define UNITY_INTERFACE_API __stdcall
- #define UNITY_INTERFACE_EXPORT __declspec(dllexport)
+#define UNITY_INTERFACE_API __stdcall
+#define UNITY_INTERFACE_EXPORT __declspec(dllexport)
 #else
  #define UNITY_INTERFACE_API
  #define UNITY_INTERFACE_EXPORT __attribute__ ((visibility("default")))
 #endif
+#include "Juce4UnityAudioProcessor.h"
 
 //==============================================================================
 struct UnityAudioEffectState;
 
-typedef int  (UNITY_INTERFACE_API * createCallback)              (UnityAudioEffectState* state);
-typedef int  (UNITY_INTERFACE_API * releaseCallback)             (UnityAudioEffectState* state);
-typedef int  (UNITY_INTERFACE_API * resetCallback)               (UnityAudioEffectState* state);
+using createCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state);
+using releaseCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state);
+using resetCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state);
 
-typedef int  (UNITY_INTERFACE_API * processCallback)             (UnityAudioEffectState* state, float* inBuffer, float* outBuffer, unsigned int bufferSize,
-                                                                  int numInChannels, int numOutChannels);
+using processCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state, float* inBuffer, float* outBuffer,
+                                                   unsigned int bufferSize,
+                                                   int numInChannels, int numOutChannels);
 
-typedef int  (UNITY_INTERFACE_API * setPositionCallback)         (UnityAudioEffectState* state, unsigned int pos);
+using setPositionCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state, unsigned int pos);
 
-typedef int  (UNITY_INTERFACE_API * setFloatParameterCallback)   (UnityAudioEffectState* state, int index, float value);
-typedef int  (UNITY_INTERFACE_API * getFloatParameterCallback)   (UnityAudioEffectState* state, int index, float* value, char* valuestr);
-typedef int  (UNITY_INTERFACE_API * getFloatBufferCallback)      (UnityAudioEffectState* state, const char* name, float* buffer, int numsamples);
+using setFloatParameterCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state, int index, float value);
+using getFloatParameterCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state, int index, float* value,
+                                                             char* valuestr);
+using getFloatBufferCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state, const char* name, float* buffer,
+                                                          int numsamples);
 
-typedef int  (UNITY_INTERFACE_API * distanceAttenuationCallback) (UnityAudioEffectState* state, float distanceIn, float attenuationIn, float* attenuationOut);
+using distanceAttenuationCallback = int(UNITY_INTERFACE_API *)(UnityAudioEffectState* state, float distanceIn,
+                                                               float attenuationIn, float* attenuationOut);
 
-typedef void (UNITY_INTERFACE_API * renderCallback)              (int eventId);
+using renderCallback = void(UNITY_INTERFACE_API *)(int eventId);
 
 //==============================================================================
 enum UnityAudioEffectDefinitionFlags
@@ -90,108 +95,115 @@ enum UnityEventModifiers
 
 struct UnityAudioSpatializerData
 {
-    float                          listenerMatrix[16];
-    float                          sourceMatrix[16];
-    float                          spatialBlend;
-    float                          reverbZoneMix;
-    float                          spread;
-    float                          stereoPan;
-    distanceAttenuationCallback    attenuationCallback;
-    float                          minDistance;
-    float                          maxDistance;
+    float listenerMatrix[16];
+    float sourceMatrix[16];
+    float spatialBlend;
+    float reverbZoneMix;
+    float spread;
+    float stereoPan;
+    distanceAttenuationCallback attenuationCallback;
+    float minDistance;
+    float maxDistance;
 };
 
 struct UnityAudioAmbisonicData
 {
-    float                          listenerMatrix[16];
-    float                          sourceMatrix[16];
-    float                          spatialBlend;
-    float                          reverbZoneMix;
-    float                          spread;
-    float                          stereoPan;
-    distanceAttenuationCallback    attenuationCallback;
-    int                            ambisonicOutChannels;
-    float                          volume;
+    float listenerMatrix[16];
+    float sourceMatrix[16];
+    float spatialBlend;
+    float reverbZoneMix;
+    float spread;
+    float stereoPan;
+    distanceAttenuationCallback attenuationCallback;
+    int ambisonicOutChannels;
+    float volume;
 };
 
 struct UnityAudioEffectState
 {
-    juce::uint32               structSize;
-    juce::uint32               sampleRate;
-    juce::uint64               dspCurrentTick;
-    juce::uint64               dspPreviousTick;
-    float*                     sidechainBuffer;
-    void*                      effectData;
-    juce::uint32               flags;
-    void*                      internal;
+    juce::uint32 structSize;
+    juce::uint32 sampleRate;
+    juce::uint64 dspCurrentTick;
+    juce::uint64 dspPreviousTick;
+    float* sidechainBuffer;
+    void* effectData;
+    juce::uint32 flags;
+    void* internal;
 
     UnityAudioSpatializerData* spatializerData;
-    juce::uint32               dspBufferSize;
-    juce::uint32               hostAPIVersion;
+    juce::uint32 dspBufferSize;
+    juce::uint32 hostAPIVersion;
 
-    UnityAudioAmbisonicData*   ambisonicData;
+    UnityAudioAmbisonicData* ambisonicData;
 
     template <typename T>
-    inline T* getEffectData() const
+    T* getEffectData() const
     {
-        jassert (effectData != nullptr);
-        jassert (internal != nullptr);
+        jassert(effectData != nullptr);
+        jassert(internal != nullptr);
 
-        return (T*) effectData;
+        return static_cast<T*>(effectData);
     }
 };
 
 struct UnityAudioParameterDefinition
 {
-    char        name[16];
-    char        unit[16];
+    char name[16];
+    char unit[16];
     const char* description;
-    float       min;
-    float       max;
-    float       defaultVal;
-    float       displayScale;
-    float       displayExponent;
+    float min;
+    float max;
+    float defaultVal;
+    float displayScale;
+    float displayExponent;
 };
 
 struct UnityAudioEffectDefinition
 {
-    juce::uint32                   structSize;
-    juce::uint32                   parameterStructSize;
-    juce::uint32                   apiVersion;
-    juce::uint32                   pluginVersion;
-    juce::uint32                   channels;
-    juce::uint32                   numParameters;
-    juce::uint64                   flags;
-    char                           name[32];
-    createCallback                 create;
-    releaseCallback                release;
-    resetCallback                  reset;
-    processCallback                process;
-    setPositionCallback            setPosition;
+    juce::uint32 structSize;
+    juce::uint32 parameterStructSize;
+    juce::uint32 apiVersion;
+    juce::uint32 pluginVersion;
+    juce::uint32 channels;
+    juce::uint32 numParameters;
+    juce::uint64 flags;
+    char name[32];
+    createCallback create;
+    releaseCallback release;
+    resetCallback reset;
+    processCallback process;
+    setPositionCallback setPosition;
     UnityAudioParameterDefinition* parameterDefintions;
-    setFloatParameterCallback      setFloatParameter;
-    getFloatParameterCallback      getFloatParameter;
-    getFloatBufferCallback         getFloatBuffer;
+    setFloatParameterCallback setFloatParameter;
+    getFloatParameterCallback getFloatParameter;
+    getFloatBufferCallback getFloatBuffer;
 };
 
 #endif
 
 //==============================================================================
 // Unity callback
-extern "C" UNITY_INTERFACE_EXPORT int  UNITY_INTERFACE_API UnityGetAudioEffectDefinitions (UnityAudioEffectDefinition*** definitionsPtr);
+extern "C" UNITY_INTERFACE_EXPORT int UNITY_INTERFACE_API UnityGetAudioEffectDefinitions(
+    UnityAudioEffectDefinition*** definitionsPtr);
 
 // GUI script callbacks
 extern "C" UNITY_INTERFACE_EXPORT renderCallback UNITY_INTERFACE_API getRenderCallback();
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityInitialiseTexture (int id, void* textureHandle, int w, int h);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityInitialiseTexture(
+    int id, void* textureHandle, int w, int h);
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseDown (int id, float x, float y, UnityEventModifiers mods, int button);
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseDrag (int id, float x, float y, UnityEventModifiers mods, int button);
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseUp   (int id, float x, float y, UnityEventModifiers mods);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseDown(
+    int id, float x, float y, UnityEventModifiers mods, int button);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseDrag(
+    int id, float x, float y, UnityEventModifiers mods, int button);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityMouseUp(int id, float x, float y,
+                                                                        UnityEventModifiers mods);
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityKeyEvent (int id, int code, UnityEventModifiers mods, const char* name);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unityKeyEvent(
+    int id, int code, UnityEventModifiers mods, const char* name);
 
-extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unitySetScreenBounds (int id, float x, float y, float w, float h);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API unitySetScreenBounds(
+    int id, float x, float y, float w, float h);
 
 
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerReset();
@@ -205,3 +217,41 @@ extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerSetInstrument(
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerNoteOn(int channel, int midi, float velocity);
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerNoteOff(int channel, int midi);
 extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API samplerAllNotesOff(int channel);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerRegisterCallback(
+    juce::ExternalMidiInputCallback callback);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerRefresh();
+
+extern "C" UNITY_INTERFACE_EXPORT int UNITY_INTERFACE_API midiDeviceManagerDeviceCount();
+
+extern "C" UNITY_INTERFACE_EXPORT bool UNITY_INTERFACE_API midiDeviceManagerDeviceIsEnabled(int id, bool input);
+extern "C" UNITY_INTERFACE_EXPORT bool UNITY_INTERFACE_API midiDeviceManagerSetDeviceEnabled(
+    int id, bool input, bool enabled);
+
+extern "C" UNITY_INTERFACE_EXPORT bool UNITY_INTERFACE_API midiDeviceManagerDeviceHasInput(int id);
+extern "C" UNITY_INTERFACE_EXPORT bool UNITY_INTERFACE_API midiDeviceManagerDeviceHasOutput(int id);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerGetDeviceName(
+    int id, char* str, int strlen);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerGetDeviceIdentifier(
+    int id, char* str, int strlen);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerSendMessage3(
+    juce::uint8 byte1, juce::uint8 byte2, juce::uint8 byte3, int id);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerSendMessage2(
+    juce::uint8 byte1, juce::uint8 byte2, int id);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerSendMessage1(
+    juce::uint8 byte1, int id);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerSendSysEx(
+    const void* data, int dataSize, int id = -1);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerNoteOn(
+    int channel, int midi, float velocity, int id);
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerNoteOff(int channel, int midi, int id);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerAllNotesOff(int channel, int id);
+
+extern "C" UNITY_INTERFACE_EXPORT void UNITY_INTERFACE_API midiDeviceManagerAllSoundOff(int channel, int id);

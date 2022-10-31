@@ -943,6 +943,204 @@ void samplerAllNotesOff(int channel)
     }
 }
 
+void midiDeviceManagerRegisterCallback(const juce::ExternalMidiInputCallback callback)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->registerMidiCallback(callback);
+        }
+    }
+}
+
+void midiDeviceManagerRefresh()
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->refreshDevices();
+        }
+    }
+}
+
+int midiDeviceManagerDeviceCount()
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->deviceCount();
+        }
+    }
+
+    return 0;
+}
+
+bool midiDeviceManagerDeviceIsEnabled(const int id, const bool input)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->deviceIsEnabled(id, input);
+        }
+    }
+
+    return false;
+}
+
+bool midiDeviceManagerSetDeviceEnabled(const int id, const bool input, const bool enabled)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->setDeviceEnabled(id, input, enabled);
+        }
+    }
+
+    return false;
+}
+
+bool midiDeviceManagerDeviceHasInput(const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->deviceHasInput(id);
+        }
+    }
+
+    return false;
+}
+
+bool midiDeviceManagerDeviceHasOutput(const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->deviceHasOutput(id);
+        }
+    }
+
+    return false;
+}
+
+void midiDeviceManagerGetDeviceName(const int id, char* str, const int strlen)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->getDeviceName(id, str, strlen);
+        }
+    }
+}
+
+void midiDeviceManagerGetDeviceIdentifier(const int id, char* str, const int strlen)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->getDeviceIdentifier(id, str, strlen);
+        }
+    }
+}
+
+void midiDeviceManagerSendMessage3(const juce::uint8 byte1, const juce::uint8 byte2, const juce::uint8 byte3,
+                                   const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendMessage(byte1, byte2, byte3, id);
+        }
+    }
+}
+
+void midiDeviceManagerSendMessage2(const juce::uint8 byte1, const juce::uint8 byte2, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendMessage(byte1, byte2, id);
+        }
+    }
+}
+
+void midiDeviceManagerSendMessage1(const juce::uint8 byte1, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            return instance->sendMessage(byte1, id);
+        }
+    }
+}
+
+void midiDeviceManagerSendSysEx(const void* data, const int dataSize, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendSysEx(data, dataSize, id);
+        }
+    }
+}
+
+void midiDeviceManagerNoteOn(const int channel, const int midi, const float velocity, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendNoteOn(channel, midi, velocity, id);
+        }
+    }
+}
+
+void midiDeviceManagerNoteOff(const int channel, const int midi, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendNoteOff(channel, midi, id);
+        }
+    }
+}
+
+void midiDeviceManagerAllNotesOff(const int channel, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendAllNotesOff(channel, id);
+        }
+    }
+}
+
+void midiDeviceManagerAllSoundOff(const int channel, const int id)
+{
+    for (const auto wrapper : juce::unityWrappers)
+    {
+        if (const auto instance = wrapper->getInstance())
+        {
+            instance->sendAllSoundOff(channel, id);
+        }
+    }
+}
+
 //==============================================================================
 #if JUCE_WINDOWS
 JUCE_BEGIN_IGNORE_WARNINGS_GCC_LIKE("-Wmissing-prototypes")
