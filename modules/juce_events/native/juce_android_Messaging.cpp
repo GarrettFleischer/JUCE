@@ -67,49 +67,49 @@ namespace Android
 }
 
 //==============================================================================
-struct AndroidMessageQueue     : private Android::Runnable
-{
+struct AndroidMessageQueue {
     JUCE_DECLARE_SINGLETON_SINGLETHREADED (AndroidMessageQueue, true)
 
-    AndroidMessageQueue()
-        : self (CreateJavaInterface (this, "java/lang/Runnable"))
-    {
+    AndroidMessageQueue() : quitFlag(false) {
+        messageThread = std::thread(&AndroidMessageQueue::processMessages, this);
     }
 
-    ~AndroidMessageQueue() override
-    {
+    ~AndroidMessageQueue() {
         JUCE_ASSERT_MESSAGE_THREAD
-        clearSingletonInstance();
+        quitFlag = true;
+        cv.notify_one();
+        messageThread.join();
     }
 
-    bool post (MessageManager::MessageBase::Ptr&& message)
-    {
-        queue.add (std::move (message));
-
-        // this will call us on the message thread
-        return handler.post (self.get());
+    bool post(MessageManager::MessageBase::Ptr&& message) {
+        if (! quitFlag) {
+            queue.add(message);
+            std::lock_guard<std::mutex> lock(cv_m);
+            cv.notify_one();
+            return true;
+        }
+        return false;
     }
 
 private:
+    void processMessages() {
+        while (! quitFlag) {
+            std::unique_lock<std::mutex> lock(cv_m);
+            cv.wait(lock, [this] { return ! queue.isEmpty() || quitFlag; });
 
-    void run() override
-    {
-        for (;;)
-        {
-            MessageManager::MessageBase::Ptr message (queue.removeAndReturn (0));
-
-            if (message == nullptr)
-                break;
-
-            message->messageCallback();
+            while (! queue.isEmpty()) {
+                auto message = queue.removeAndReturn(0);
+                if (message != nullptr)
+                    message->messageCallback();
+            }
         }
     }
 
-    // the this pointer to this class in Java land
-    GlobalRef self;
-
     ReferenceCountedArray<MessageManager::MessageBase, CriticalSection> queue;
-    Android::Handler handler;
+    std::condition_variable cv;
+    std::mutex cv_m;
+    std::thread messageThread;
+    std::atomic<bool> quitFlag;
 };
 
 JUCE_IMPLEMENT_SINGLETON (AndroidMessageQueue)
